@@ -12,11 +12,11 @@
         input[type="text"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #eaeaea; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; }
         input[type="text"]:focus { border-color: #bd081c; }
         button { width: 100%; background-color: #bd081c; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        button:disabled { background-color: #cccccc; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
         .ad-box { margin: 20px 0; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; color: #666; font-size: 12px; }
         .result { margin-top: 25px; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; display: none; }
         video { width: 100%; border-radius: 8px; margin-top: 10px; }
-        .save-btn { background-color: #25d366; text-decoration: none; display: block; margin-top: 15px; padding: 12px; color: white; border-radius: 8px; font-weight: bold; }
+        .save-btn { background-color: #25d366; text-decoration: none; display: block; margin-top: 15px; padding: 12px; color: white; border-radius: 8px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
@@ -25,7 +25,7 @@
     <div class="logo">PinJet</div>
     <h1>Pinterest Video Downloader</h1>
     
-    <input type="text" id="pinUrl" placeholder="यहाँ Pinterest लिंक पेस्ट करें...">
+    <input type="text" id="pinUrl" placeholder="यहाँ pin.it या pinterest.com लिंक पेस्ट करें...">
     <button id="downloadBtn" onclick="startDownload()">Download HD Video</button>
     
     <div class="ad-box">ADVERTISEMENT (Aapka Ad Code Yahan Aayega)</div>
@@ -39,7 +39,7 @@
 
 <script>
 async function startDownload() {
-    const pinUrl = document.getElementById('pinUrl').value.trim();
+    let pinUrl = document.getElementById('pinUrl').value.trim();
     const btn = document.getElementById('downloadBtn');
     const resultBox = document.getElementById('resultBox');
     const player = document.getElementById('videoPlayer');
@@ -47,37 +47,50 @@ async function startDownload() {
 
     if (!pinUrl) { return alert("कृपया पहले Pinterest लिंक पेस्ट करें!"); }
 
-    btn.innerText = "वीडियो लिंक निकाल रहा हूँ...";
+    btn.innerText = "प्रोसेसिंग चालू है...";
     btn.disabled = true;
     resultBox.style.display = "none";
 
-    // Pinterest Scraper API Gateway जो कभी बंद नहीं होगा
-    const directApi = `allorigins.win{encodeURIComponent(pinUrl)}`;
-
     try {
-        let response = await fetch(directApi);
-        let rawData = await response.json();
-        let htmlContent = rawData.contents;
-
-        // HTML से असली MP4 वीडियो URL खोजने का लॉजिक
-        let videoMatch = htmlContent.match(/"video_list":.*?:"(https:\/\/v1\.pinimg\.com\/videos\/.*?\.mp4)"/);
-        
-        if (!videoMatch) {
-            // दूसरा अल्टरनेटिव सर्च पैटर्न ट्राई करें
-            videoMatch = htmlContent.match(/href="(https:\/\/v1\.pinimg\.com\/videos\/.*?\.mp4)"/);
+        // स्टेप 1: अगर लिंक pin.it है, तो उसे Unshorten करके असली लॉन्ग URL निकालना
+        if (pinUrl.includes("pin.it")) {
+            const unshortenApi = `allorigins.win{encodeURIComponent(pinUrl)}`;
+            let unshortenResponse = await fetch(unshortenApi);
+            let unshortenData = await unshortenResponse.json();
+            
+            // रीडायरेक्टेड असली URL खोजना
+            let longUrlMatch = unshortenData.contents.match(/window\.location\.replace\("(.*?)"\)/) || unshortenData.contents.match(/href="(.*?)"/);
+            if (longUrlMatch && longUrlMatch[1]) {
+                pinUrl = longUrlMatch[1];
+            }
         }
 
-        if (videoMatch && videoMatch[1]) {
-            // बैकस्लैश हटाकर क्लीन URL बनाना
-            let cleanUrl = videoMatch[1].replace(/\\/g, "");
-            player.src = cleanUrl;
-            saveLink.href = cleanUrl;
+        // स्टेप 2: अब एक स्टेबल ग्लोबल पब्लिक API से वीडियो डेटा निकालना
+        const videoApi = `scraptik.com{encodeURIComponent(pinUrl)}`;
+        let response = await fetch(videoApi);
+        
+        // अगर ऊपर वाली API रिस्पॉन्स न दे, तो बैकअप API इस्तेमाल करना
+        if (!response.ok) {
+            const backupApi = `vkrdown.com{encodeURIComponent(pinUrl)}`;
+            response = await fetch(backupApi);
+        }
+
+        let data = await response.json();
+        
+        // अलग-अलग API रिस्पॉन्स फॉर्मेट्स को हैंडल करना
+        let finalVideoUrl = data.video_url || data.url || (data.data && data.data.url);
+
+        if (finalVideoUrl) {
+            player.src = finalVideoUrl;
+            saveLink.href = finalVideoUrl;
             resultBox.style.display = "block";
         } else {
-            alert("यह लिंक वीडियो का नहीं है या इमेज पोस्ट है। कृपया केवल वीडियो का लिंक डालें!");
+            alert("वीडियो लिंक नहीं मिल पाया। कृपया पक्का करें कि यह एक वीडियो पोस्ट है, इमेज नहीं।");
         }
+
     } catch (err) {
-        alert("नेटवर्क स्लो है, कृपया एक बार फिर से बटन दबाएं!");
+        console.error(err);
+        alert("सर्वर रिस्पॉन्स नहीं दे रहा है, कृपया एक बार बटन दोबारा दबाएं!");
     } finally {
         btn.innerText = "Download HD Video";
         btn.disabled = false;
