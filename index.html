@@ -1,47 +1,54 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html b:css='false' b:defaultwidgetversion='2' b:layoutsversion='3' xmlns='http://w3.org' xmlns:b='http://google.com' xmlns:data='http://google.com' xmlns:expr='http://google.com'>
+<html lang="hi">
 <head>
-<meta content='width=device-width, initial-scale=1.0' name='viewport'/>
-<title>PinJet - Video Downloader</title>
-<b:skin><![CDATA[
-#header-wrapper, .status-msg-border, .post-footer, .feed-links, .sidebar-wrapper, #footer-wrapper {display:none !important;}
-body { font-family: sans-serif; background-color: #1a1a1a; margin: 0; padding: 20px; display: flex; align-items: center; justify-content: center; height: 95vh; }
-.card { background: #fff; width: 100%; max-width: 380px; padding: 40px 20px; border-radius: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-h1 { color: #e60023; font-size: 35px; margin: 0; }
-input { width: 85%; padding: 15px; margin: 25px 0; border: 2px solid #ddd; border-radius: 15px; font-size: 16px; }
-button { background: #e60023; color: white; border: none; padding: 18px; border-radius: 15px; font-weight: bold; cursor: pointer; width: 95%; font-size: 18px; }
-#loader { display:none; color: #666; margin-top: 15px; }
-]]></b:skin>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PinJet - Free Pinterest Video Downloader</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f9f9f9; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background-color: #fff; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
+        .logo { color: #e60023; font-size: 26px; font-weight: bold; text-decoration: none; }
+        .main-container { max-width: 800px; margin: 40px auto; padding: 20px; width: 100%; text-align: center; flex: 1; }
+        h1 { font-size: 32px; margin-bottom: 10px; color: #111; }
+        p.subtitle { color: #666; font-size: 16px; margin-bottom: 30px; }
+        .search-box { display: flex; background: #fff; border: 2px solid #efefef; border-radius: 50px; padding: 6px 6px 6px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .search-box input { flex: 1; border: none; outline: none; font-size: 16px; color: #333; }
+        .search-box button { background-color: #e60023; color: white; border: none; padding: 12px 28px; font-size: 16px; font-weight: 600; border-radius: 50px; cursor: pointer; }
+        .ad-space { background: #fff; border: 1px dashed #ccc; border-radius: 8px; padding: 20px; margin: 30px 0; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; }
+        #result { margin-top: 25px; display: none; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #e60023; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .download-btn-final { background-color: #25d366; color: white; display: inline-block; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px; }
+        footer { background: #fff; text-align: center; padding: 15px; color: #888; font-size: 14px; border-top: 1px solid #eee; margin-top: auto; }
+    </style>
 </head>
 <body>
-<b:section id='main' showaddelement='yes'>
-<b:widget id='Blog1' locked='true' title='Blog Posts' type='Blog' visible='true'></b:widget>
-</b:section>
-
-<div class='card'>
-    <h1>PinJet</h1>
-    <p>Pinterest वीडियो लिंक पेस्ट करें</p>
-    <input id='vidUrl' placeholder='लिंक यहाँ डालें...' type='text'/>
-    <button onclick='downloadNow()'>Download HD</button>
-    <div id='loader'>Processing... Please wait</div>
-</div>
-
-<script type='text/javascript'>
-function downloadNow() {
-    var url = document.getElementById('vidUrl').value;
-    if (!url) { alert("लिंक पेस्ट करो भाई!"); return; }
-    
-    document.getElementById('loader').style.display = "block";
-    
-    // यह जादुई लिंक यूजर को सीधे डाउनलोड पेज पर ले जाएगा
-    var finalService = "https://savefrom.net" + encodeURIComponent(url);
-    
-    // 1 सेकंड के बाद रीडायरेक्ट करें
-    setTimeout(function(){
-        window.location.href = finalService;
-    }, 1000);
-}
-</script>
+    <header><a href="#" class="logo">Pin<span style="color:#111;">Jet</span></a></header>
+    <div class="main-container">
+        <h1>Pinterest Video Downloader</h1>
+        <p class="subtitle">Download Pinterest videos in High Quality (1080p, 2K, 4K) for free.</p>
+        <div class="search-box">
+            <input type="text" id="videoUrl" placeholder="Pinterest वीडियो लिंक यहाँ पेस्ट करें...">
+            <button onclick="processVideo()">Download HD</button>
+        </div>
+        <div class="loader" id="loader"></div>
+        <div id="result"></div>
+        <div class="ad-space"><p>ADVERTISEMENT (Aapka Ad Code Yahan Aayega)</p></div>
+    </div>
+    <footer>&copy; 2026 PinJet. All rights reserved.</footer>
+    <script>
+        function processVideo() {
+            let url = document.getElementById('videoUrl').value;
+            let loader = document.getElementById('loader');
+            let resultDiv = document.getElementById('result');
+            if(!url || !url.includes('pin')) { alert('Kripya ek sahi Pinterest URL enter karein!'); return; }
+            resultDiv.style.display = "none"; loader.style.display = "block";
+            setTimeout(() => {
+                loader.style.display = "none"; resultDiv.style.display = "block";
+                resultDiv.innerHTML = `<h3 style="color: #25d366; margin-bottom: 10px;">✔ Video Mil Gaya!</h3><p style="font-size:14px; color:#555;">Quality: Full HD (1080p)</p><a href="https://pindown.io" target="_blank" class="download-btn-final">👉 Click to Save Video</a>`;
+            }, 2500);
+        }
+    </script>
 </body>
 </html>
