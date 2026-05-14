@@ -3,79 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PinJet - Free Pinterest Video Downloader</title>
+    <title>PinJet - Pinterest Video Downloader</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f9f9f9; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
-        header { background-color: #fff; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
-        .logo { color: #e60023; font-size: 26px; font-weight: bold; text-decoration: none; }
-        .main-container { max-width: 600px; margin: 40px auto; padding: 20px; width: 100%; text-align: center; flex: 1; }
-        h1 { font-size: 28px; margin-bottom: 10px; color: #111; }
-        p.subtitle { color: #666; font-size: 15px; margin-bottom: 30px; padding: 0 10px; }
-        .search-box { display: flex; flex-direction: column; background: transparent; gap: 15px; width: 100%; }
-        .search-box input { width: 100%; padding: 15px 20px; border: 2px solid #efefef; border-radius: 50px; font-size: 16px; color: #333; outline: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.3s ease; }
-        .search-box input:focus { border-color: #e60023; box-shadow: 0 4px 15px rgba(230,0,35,0.15); }
-        .search-box button { background-color: #e60023; color: white; border: none; padding: 15px 30px; font-size: 16px; font-weight: 600; border-radius: 50px; cursor: pointer; transition: background 0.2s; width: 100%; box-shadow: 0 4px 12px rgba(230,0,35,0.2); }
-        .search-box button:hover { background-color: #b8001c; }
-        .ad-space { background: #fff; border: 1px dashed #ccc; border-radius: 8px; padding: 20px; margin: 30px 0; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; }
-        #result { margin-top: 25px; display: none; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #e60023; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .download-btn-final { background-color: #25d366; color: white; display: inline-block; padding: 12px 25px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px; cursor: pointer; }
-        footer { background: #fff; text-align: center; padding: 15px; color: #888; font-size: 14px; border-top: 1px solid #eee; margin-top: auto; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); text-align: center; width: 100%; max-width: 450px; }
+        .logo { color: #bd081c; font-size: 28px; font-weight: bold; margin-bottom: 5px; }
+        h1 { color: #333; font-size: 22px; margin-bottom: 20px; font-weight: 600; }
+        input[type="text"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #eaeaea; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; transition: border 0.3s; }
+        input[type="text"]:focus { border-color: #bd081c; }
+        button { width: 100%; background-color: #bd081c; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        button:hover { background-color: #ad071a; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .ad-box { margin: 20px 0; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; color: #666; font-size: 12px; background: #fffdfd; }
+        .result { margin-top: 25px; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; }
+        video { width: 100%; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .save-btn { background-color: #25d366; text-decoration: none; display: block; margin-top: 15px; padding: 12px; color: white; border-radius: 8px; font-weight: bold; }
+        .save-btn:hover { background-color: #20ba5a; }
     </style>
 </head>
 <body>
-    <header><a href="#" class="logo">Pin<span style="color:#111;">Jet</span></a></header>
-    <div class="main-container">
-        <h1>Pinterest Video Downloader</h1>
-        <p class="subtitle">Download Pinterest videos in High Quality (1080p, 2K, 4K) for free.</p>
-        <div class="search-box">
-            <input type="text" id="videoUrl" placeholder="Pinterest वीडियो लिंक यहाँ पेस्ट करें...">
-            <button onclick="processVideo()">Download HD Video</button>
-        </div>
-        <div class="loader" id="loader"></div>
-        <div id="result"></div>
-        <div class="ad-space"><p>ADVERTISEMENT (Aapka Ad Code Yahan Aayega)</p></div>
-    </div>
-    <footer>&copy; 2026 PinJet. All rights reserved.</footer>
 
-    <script>
-        async function processVideo() {
-            let url = document.getElementById('videoUrl').value;
-            let loader = document.getElementById('loader');
-            let resultDiv = document.getElementById('result');
-            
-            if(!url || !url.includes('pin')) { 
-                alert('Kripya ek sahi Pinterest URL enter karein!'); 
-                return; 
-            }
-            
-            resultDiv.style.display = "none"; 
-            loader.style.display = "block";
-            
-            try {
-                // Yeh free API automatic Pinterest se video file ka asli link nikalegi
-                let response = await fetch(`cafirexos.com{encodeURIComponent(url)}`);
-                let data = await response.json();
-                
-                loader.style.display = "none";
-                
-                if(data.status && data.result && data.result.video) {
-                    resultDiv.style.display = "block";
-                    resultDiv.innerHTML = `
-                        <h3 style="color: #25d366; margin-bottom: 10px;">✔ Video Mil Gaya!</h3>
-                        <p style="font-size:14px; color:#555;">Quality: High Quality</p>
-                        <a href="${data.result.video}" target="_blank" download="pinterest-video.mp4" class="download-btn-final">👉 Click to Save Video</a>
-                    `;
-                } else {
-                    alert("Video link nahi mil paya. Kripya koi doosra Pinterest link try karein.");
-                }
-            } catch (error) {
-                loader.style.display = "none";
-                alert("Server thoda busy hai, kripya dobara try karein!");
-            }
+<div class="container">
+    <div class="logo">PinJet</div>
+    <h1>Pinterest Video Downloader</h1>
+    
+    <input type="text" id="pinUrl" placeholder="यहाँ pin.it या pinterest.com लिंक पेस्ट करें...">
+    <button id="downloadBtn" onclick="startDownload()">Download HD Video</button>
+    
+    <div class="ad-box">
+        ADVERTISEMENT (Aapka Ad Code Yahan Aayega)
+    </div>
+
+    <div id="resultBox" style="display: none;" class="result">
+        <p style="color: #16a34a; font-weight: bold; margin: 0;">आपका वीडियो तैयार है!</p>
+        <video id="videoPlayer" controls preload="metadata"></video>
+        <a id="saveLink" href="#" target="_blank" class="save-btn">Click to Save Video</a>
+    </div>
+</div>
+
+<script>
+async function startDownload() {
+    const pinUrl = document.getElementById('pinUrl').value.trim();
+    const btn = document.getElementById('downloadBtn');
+    const resultBox = document.getElementById('resultBox');
+    const player = document.getElementById('videoPlayer');
+    const saveLink = document.getElementById('saveLink');
+
+    if (!pinUrl) {
+        alert("कृपया पहले Pinterest लिंक पेस्ट करें!");
+        return;
+    }
+
+    btn.innerText = "वीडियो ढूंढ रहा हूँ...";
+    btn.disabled = true;
+    resultBox.style.display = "none";
+
+    // API Endpoint 1 (यह शार्ट और लॉन्ग दोनों लिंक्स सपोर्ट करता है)
+    const api1 = `tinydownloader.com{encodeURIComponent(pinUrl)}`;
+    // बैकअप API Endpoint 2
+    const api2 = `onrender.com{encodeURIComponent(pinUrl)}`;
+
+    try {
+        // पहला सर्वर ट्राई करें
+        let response = await fetch(api1);
+        let data = await response.json();
+        
+        if (data && (data.video_url || data.url)) {
+            let finalUrl = data.video_url || data.url;
+            showVideo(finalUrl);
+            return;
         }
-    </script>
+        
+        // अगर पहला फेल हुआ, तो बैकअप सर्वर ट्राई करें
+        throw new Error("API 1 Failed, Trying Backup...");
+        
+    } catch (err) {
+        console.log(err.message);
+        try {
+            let response = await fetch(api2);
+            let data = await response.json();
+            if (data && data.url) {
+                showVideo(data.url);
+                return;
+            }
+            alert("यह वीडियो प्राइवेट है या इसका लिंक सही नहीं है। कृपया दूसरा लिंक ट्राई करें!");
+        } catch (backupErr) {
+            alert("दोनों सर्वर डाउन हैं! कृपया 2 मिनट बाद दोबारा कोशिश करें।");
+        }
+    } finally {
+        btn.innerText = "Download HD Video";
+        btn.disabled = false;
+    }
+
+    function showVideo(url) {
+        player.src = url;
+        saveLink.href = url;
+        resultBox.style.display = "block";
+    }
+}
+</script>
+
 </body>
 </html>
