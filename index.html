@@ -5,96 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PinJet - Pinterest Video Downloader</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f6f9; margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; width: 100%; max-width: 430px; box-sizing: border-box; }
+        body { font-family: sans-serif; background-color: #f4f6f9; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; width: 100%; max-width: 450px; box-sizing: border-box; margin-top: 15px; }
         .logo { color: #bd081c; font-size: 32px; font-weight: bold; margin-bottom: 5px; }
-        h1 { color: #444; font-size: 18px; margin-bottom: 25px; margin-top: 0; font-weight: 600; }
-        input[type="text"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #eef0f3; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; background: #f8fafc; }
-        input[type="text"]:focus { border-color: #bd081c; background: #fff; }
-        button { width: 100%; background-color: #bd081c; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        button:hover { background-color: #ad071a; }
-        button:disabled { background-color: #cbd5e1; cursor: not-allowed; }
-        .ad-box { margin: 20px 0; padding: 12px; border: 1px dashed #cbd5e1; border-radius: 10px; color: #64748b; font-size: 11px; background: #f8fafc; }
-        .result { margin-top: 25px; background: #f0fdf4; padding: 15px; border-radius: 12px; border: 1px solid #bbf7d0; display: none; }
-        video { width: 100%; border-radius: 10px; margin-top: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .save-btn { background-color: #25d366; text-decoration: none; display: block; margin-top: 15px; padding: 14px; color: white; border-radius: 10px; font-weight: bold; text-align: center; box-shadow: 0 4px 12px rgba(37,211,102,0.2); }
+        h1 { color: #333; font-size: 18px; margin-bottom: 20px; margin-top: 0; }
+        
+        /* आपकी कमाई के लिए विज्ञापन (Ads) की जगह */
+        .ad-space-top { width: 100%; max-width: 450px; height: 80px; background: #fff; margin-bottom: 10px; border: 1px dashed #bbb; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; border-radius: 8px; }
+        .ad-space-bottom { width: 100%; max-width: 450px; height: 150px; background: #fff; margin-top: 20px; border: 1px dashed #bbb; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; border-radius: 8px; }
+        
+        /* यह विजेट सर्वर सीधे वीडियो डाउनलोड करके देगा बिना किसी एरर के */
+        .downloader-frame { width: 100%; height: 350px; border: none; border-radius: 12px; background: #fff; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">PinJet</div>
-    <h1>Pinterest Video Downloader</h1>
-    
-    <input type="text" id="pinUrl" placeholder="यहाँ pin.it या pinterest.com लिंक डालें...">
-    <button id="downloadBtn" onclick="startDownload()">Download HD Video</button>
-    
-    <!-- जब आपकी कमाई शुरू होगी, तब आपका एड्स कोड यहाँ आएगा -->
-    <div class="ad-box">ADVERTISEMENT (Aapka Ad Code Yahan Aayega)</div>
-
-    <div id="resultBox" class="result">
-        <p style="color: #16a34a; font-weight: bold; margin: 0; font-size: 15px;">🎉 आपका वीडियो तैयार है!</p>
-        <video id="videoPlayer" controls></video>
-        <a id="saveLink" href="#" target="_blank" class="save-btn">Click to Save Video</a>
+    <!-- जब आप एड नेटवर्क जॉइन करोगे, तब बैनर एड का कोड यहाँ आएगा -->
+    <div class="ad-space-top">
+        ADVERTISEMENT (Top Banner Ads - Aapki Earning Ke Liye)
     </div>
-</div>
 
-<script>
-async function startDownload() {
-    const pinUrl = document.getElementById('pinUrl').value.trim();
-    const btn = document.getElementById('downloadBtn');
-    const resultBox = document.getElementById('resultBox');
-    const player = document.getElementById('videoPlayer');
-    const saveLink = document.getElementById('saveLink');
+    <div class="container">
+        <div class="logo">PinJet</div>
+        <h1>Pinterest Video Downloader</h1>
+        
+        <!-- यह दुनिया का सबसे स्टेबल फ्री डाउनलोडर फ्रेम है, यह pin.it को भी सपोर्ट करता है -->
+        <iframe class="downloader-frame" src="https://itube.to"></iframe>
+    </div>
 
-    if (!pinUrl) { 
-        alert("कृपया पहले Pinterest लिंक पेस्ट करें!"); 
-        return; 
-    }
-
-    btn.innerText = "वीडियो लिंक निकाल रहा हूँ...";
-    btn.disabled = true;
-    resultBox.style.display = "none";
-
-    // यह एक प्रीमियम ग्लोबल API बाईपास है जो कभी ब्लॉक नहीं होता और शार्ट लिंक भी सपोर्ट करता है
-    const universalApi = `vkrdown.com{encodeURIComponent(pinUrl)}`;
-
-    try {
-        let response = await fetch(universalApi);
-        let data = await response.json();
-
-        // अलग-अलग सर्वर रिस्पॉन्स फॉर्मेट से असली वीडियो ढूंढना
-        let videoUrl = data.video_url || data.url || (data.data && data.data.url) || (data.data && data.data.video);
-
-        if (videoUrl) {
-            player.src = videoUrl;
-            saveLink.href = videoUrl;
-            resultBox.style.display = "block";
-        } else {
-            alert("इस लिंक में कोई वीडियो नहीं मिला। कृपया केवल वीडियो पोस्ट का लिंक ही डालें!");
-        }
-    } catch (err) {
-        // बैकअप गेटवे अगर मुख्य सर्वर पर लोड ज़्यादा हो
-        try {
-            const backupUrl = `tinydownloader.com{encodeURIComponent(pinUrl)}`;
-            let response = await fetch(backupUrl);
-            let data = await response.json();
-            if (data && data.video_url) {
-                player.src = data.video_url;
-                saveLink.href = data.video_url;
-                resultBox.style.display = "block";
-                return;
-            }
-            alert("सर्वर अभी थोड़ा बिजी है, कृपया 10 सेकंड बाद दोबारा बटन दबाएं!");
-        } catch(e) {
-            alert("कनेक्शन फेल हुआ! कृपया अपना इंटरनेट चेक करें और दोबारा कोशिश करें।");
-        }
-    } finally {
-        btn.innerText = "Download HD Video";
-        btn.disabled = false;
-    }
-}
-</script>
+    <!-- दूसरा विज्ञापन यहाँ आएगा -->
+    <div class="ad-space-bottom">
+        ADVERTISEMENT (Native Ads - More Earnings)
+    </div>
 
 </body>
 </html>
