@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html b:css='false' b:defaultwidgetversion='2' b:layoutsversion='3' xmlns='http://w3.org' xmlns:b='http://google.com' xmlns:data='http://google.com' xmlns:expr='http://google.com'>
+<head>
+<meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+<title>PinJet - Video Downloader</title>
+<b:skin><![CDATA[
+#header-wrapper, .status-msg-border, .post-footer, .feed-links, .sidebar-wrapper, #footer-wrapper {display:none !important;}
+body { font-family: sans-serif; background-color: #1a1a1a; margin: 0; padding: 20px; display: flex; align-items: center; justify-content: center; height: 95vh; }
+.card { background: #fff; width: 100%; max-width: 380px; padding: 40px 20px; border-radius: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+h1 { color: #e60023; font-size: 35px; margin: 0; }
+input { width: 85%; padding: 15px; margin: 25px 0; border: 2px solid #ddd; border-radius: 15px; font-size: 16px; }
+button { background: #e60023; color: white; border: none; padding: 18px; border-radius: 15px; font-weight: bold; cursor: pointer; width: 95%; font-size: 18px; }
+#loader { display:none; color: #666; margin-top: 15px; }
+]]></b:skin>
+</head>
+<body>
+<b:section id='main' showaddelement='yes'>
+<b:widget id='Blog1' locked='true' title='Blog Posts' type='Blog' visible='true'></b:widget>
+</b:section>
+
+<div class='card'>
+    <h1>PinJet</h1>
+    <p>Pinterest वीडियो लिंक पेस्ट करें</p>
+    <input id='vidUrl' placeholder='लिंक यहाँ डालें...' type='text'/>
+    <button onclick='downloadNow()'>Download HD</button>
+    <div id='loader'>Processing... Please wait</div>
+</div>
+
+<script type='text/javascript'>
+function downloadNow() {
+    var url = document.getElementById('vidUrl').value;
+    if (!url) { alert("लिंक पेस्ट करो भाई!"); return; }
+    
+    document.getElementById('loader').style.display = "block";
+    
+    // यह जादुई लिंक यूजर को सीधे डाउनलोड पेज पर ले जाएगा
+    var finalService = "https://savefrom.net" + encodeURIComponent(url);
+    
+    // 1 सेकंड के बाद रीडायरेक्ट करें
+    setTimeout(function(){
+        window.location.href = finalService;
+    }, 1000);
+}
+</script>
+</body>
+</html>
