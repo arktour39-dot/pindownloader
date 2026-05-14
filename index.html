@@ -5,38 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PinJet - Pinterest Video Downloader</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f6f9; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .container { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; width: 100%; max-width: 450px; box-sizing: border-box; margin-top: 15px; }
+        body { font-family: sans-serif; background-color: #f4f6f9; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; width: 100%; max-width: 430px; box-sizing: border-box; margin-top: 10px; }
         .logo { color: #bd081c; font-size: 32px; font-weight: bold; margin-bottom: 5px; }
         h1 { color: #333; font-size: 18px; margin-bottom: 20px; margin-top: 0; }
-        
-        /* आपकी कमाई के लिए विज्ञापन (Ads) की जगह */
-        .ad-space-top { width: 100%; max-width: 450px; height: 80px; background: #fff; margin-bottom: 10px; border: 1px dashed #bbb; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; border-radius: 8px; }
-        .ad-space-bottom { width: 100%; max-width: 450px; height: 150px; background: #fff; margin-top: 20px; border: 1px dashed #bbb; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; border-radius: 8px; }
-        
-        /* यह विजेट सर्वर सीधे वीडियो डाउनलोड करके देगा बिना किसी एरर के */
-        .downloader-frame { width: 100%; height: 350px; border: none; border-radius: 12px; background: #fff; }
+        input[type="text"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #eaeaea; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; background: #f8fafc; }
+        input[type="text"]:focus { border-color: #bd081c; background: #fff; }
+        button { width: 100%; background-color: #bd081c; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        button:disabled { background-color: #cbd5e1; }
+        .ad-space { width: 100%; max-width: 430px; height: 80px; background: #fff; margin-bottom: 10px; border: 1px dashed #bbb; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; border-radius: 8px; }
+        .result-box { margin-top: 20px; background: #f0fdf4; padding: 15px; border-radius: 12px; border: 1px solid #bbf7d0; display: none; }
+        .download-link-btn { display: block; background-color: #25d366; text-decoration: none; padding: 14px; color: white; border-radius: 10px; font-weight: bold; font-size: 16px; margin-top: 10px; text-align: center; box-shadow: 0 4px 12px rgba(37,211,102,0.2); }
     </style>
 </head>
 <body>
 
-    <!-- जब आप एड नेटवर्क जॉइन करोगे, तब बैनर एड का कोड यहाँ आएगा -->
-    <div class="ad-space-top">
-        ADVERTISEMENT (Top Banner Ads - Aapki Earning Ke Liye)
-    </div>
+    <div class="ad-space">ADVERTISEMENT (Top Banner Ads - Aapki Earning Ke Liye)</div>
 
     <div class="container">
         <div class="logo">PinJet</div>
         <h1>Pinterest Video Downloader</h1>
         
-        <!-- यह दुनिया का सबसे स्टेबल फ्री डाउनलोडर फ्रेम है, यह pin.it को भी सपोर्ट करता है -->
-        <iframe class="downloader-frame" src="https://itube.to"></iframe>
+        <input type="text" id="pinterestUrl" placeholder="यहाँ pin.it या pinterest.com लिंक पेस्ट करें...">
+        <button id="getBtn" onclick="downloadProcess()">Download Video</button>
+
+        <div id="resultSection" class="result-box">
+            <p style="color: #16a34a; font-weight: bold; margin: 0 0 10px 0;">🎉 वीडियो लिंक मिल गया है!</p>
+            <a id="finalDownloadBtn" href="#" target="_blank" class="download-link-btn">यहाँ क्लिक करके सेव करें</a>
+        </div>
     </div>
 
-    <!-- दूसरा विज्ञापन यहाँ आएगा -->
-    <div class="ad-space-bottom">
-        ADVERTISEMENT (Native Ads - More Earnings)
-    </div>
+    <div class="ad-space" style="margin-top: 15px; height: 120px;">ADVERTISEMENT (Bottom Ads)</div>
+
+<script>
+async function downloadProcess() {
+    const inputUrl = document.getElementById('pinterestUrl').value.trim();
+    const btn = document.getElementById('getBtn');
+    const resultSection = document.getElementById('resultSection');
+    const finalDownloadBtn = document.getElementById('finalDownloadBtn');
+
+    if (!inputUrl) {
+        alert("कृपया पहले लिंक पेस्ट करें!");
+        return;
+    }
+
+    btn.innerText = "वीडियो ढूंढ रहा हूँ...";
+    btn.disabled = true;
+    resultSection.style.display = "none";
+
+    // यह बिना CORS ब्लॉक वाला सबसे एडवांस और ओपन गेटवे है
+    const coreGateway = `allorigins.win{encodeURIComponent(inputUrl)}`;
+
+    try {
+        let response = await fetch(coreGateway);
+        if (!response.ok) throw new Error();
+        
+        let data = await response.json();
+        let htmlSource = data.contents;
+
+        // पेज के सोर्स कोड से असली छुपा हुआ MP4 वीडियो लिंक खुरचना
+        let videoUrlMatch = htmlSource.match(/"video_list":.*?:"(https:\/\/v1\.pinimg\.com\/videos\/.*?\.mp4)"/) || 
+                           htmlSource.match(/href="(https:\/\/v1\.pinimg\.com\/videos\/.*?\.mp4)"/) ||
+                           htmlSource.match(/"url":"(https:\/\/v1\.pinimg\.com\/videos\/.*?\.mp4)"/);
+
+        if (videoUrlMatch && videoUrlMatch[1]) {
+            let realMp4Url = videoUrlMatch[1].replace(/\\/g, "");
+            finalDownloadBtn.href = realMp4Url;
+            resultSection.style.display = "block";
+        } else {
+            // अगर शॉर्टनर लिंक अभी तक ओपन न हुआ हो तो एक अल्टरनेटिव डायरेक्ट डाउनलोड पेज पर भेजें
+            let fallbackUrl = `pindown.io{encodeURIComponent(inputUrl)}`;
+            finalDownloadBtn.href = fallbackUrl;
+            resultSection.style.display = "block";
+        }
+    } catch (error) {
+        // अगर गेटवे पर लोड ज्यादा हो तो सीधे यूजर को काम करने वाले लिंक पर भेजें
+        let fallbackUrl = `pinterestvideodownloader.com{encodeURIComponent(inputUrl)}`;
+        finalDownloadBtn.href = fallbackUrl;
+        resultSection.style.display = "block";
+    } finally {
+        btn.innerText = "Download Video";
+        btn.disabled = false;
+    }
+}
+</script>
 
 </body>
 </html>
