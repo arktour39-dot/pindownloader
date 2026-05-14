@@ -5,20 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PinJet - Pinterest Video Downloader</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        body { font-family: sans-serif; background-color: #f9f9f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .container { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); text-align: center; width: 100%; max-width: 450px; }
         .logo { color: #bd081c; font-size: 28px; font-weight: bold; margin-bottom: 5px; }
-        h1 { color: #333; font-size: 22px; margin-bottom: 20px; font-weight: 600; }
-        input[type="text"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #eaeaea; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; transition: border 0.3s; }
+        h1 { color: #333; font-size: 22px; margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 14px; margin-bottom: 15px; border: 2px solid #eaeaea; border-radius: 8px; box-sizing: border-box; font-size: 16px; outline: none; }
         input[type="text"]:focus { border-color: #bd081c; }
-        button { width: 100%; background-color: #bd081c; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        button:hover { background-color: #ad071a; }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        .ad-box { margin: 20px 0; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; color: #666; font-size: 12px; background: #fffdfd; }
-        .result { margin-top: 25px; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; }
-        video { width: 100%; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        button { width: 100%; background-color: #bd081c; color: white; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:disabled { background-color: #cccccc; }
+        .ad-box { margin: 20px 0; padding: 15px; border: 1px dashed #ccc; border-radius: 8px; color: #666; font-size: 12px; }
+        .result { margin-top: 25px; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; display: none; }
+        video { width: 100%; border-radius: 8px; margin-top: 10px; }
         .save-btn { background-color: #25d366; text-decoration: none; display: block; margin-top: 15px; padding: 12px; color: white; border-radius: 8px; font-weight: bold; }
-        .save-btn:hover { background-color: #20ba5a; }
     </style>
 </head>
 <body>
@@ -27,16 +25,14 @@
     <div class="logo">PinJet</div>
     <h1>Pinterest Video Downloader</h1>
     
-    <input type="text" id="pinUrl" placeholder="यहाँ pin.it या pinterest.com लिंक पेस्ट करें...">
+    <input type="text" id="pinUrl" placeholder="यहाँ Pinterest लिंक पेस्ट करें...">
     <button id="downloadBtn" onclick="startDownload()">Download HD Video</button>
     
-    <div class="ad-box">
-        ADVERTISEMENT (Aapka Ad Code Yahan Aayega)
-    </div>
+    <div class="ad-box">ADVERTISEMENT (Aapka Ad Code Yahan Aayega)</div>
 
-    <div id="resultBox" style="display: none;" class="result">
+    <div id="resultBox" class="result">
         <p style="color: #16a34a; font-weight: bold; margin: 0;">आपका वीडियो तैयार है!</p>
-        <video id="videoPlayer" controls preload="metadata"></video>
+        <video id="videoPlayer" controls></video>
         <a id="saveLink" href="#" target="_blank" class="save-btn">Click to Save Video</a>
     </div>
 </div>
@@ -49,56 +45,42 @@ async function startDownload() {
     const player = document.getElementById('videoPlayer');
     const saveLink = document.getElementById('saveLink');
 
-    if (!pinUrl) {
-        alert("कृपया पहले Pinterest लिंक पेस्ट करें!");
-        return;
-    }
+    if (!pinUrl) { return alert("कृपया पहले Pinterest लिंक पेस्ट करें!"); }
 
-    btn.innerText = "वीडियो ढूंढ रहा हूँ...";
+    btn.innerText = "वीडियो लिंक निकाल रहा हूँ...";
     btn.disabled = true;
     resultBox.style.display = "none";
 
-    // API Endpoint 1 (यह शार्ट और लॉन्ग दोनों लिंक्स सपोर्ट करता है)
-    const api1 = `tinydownloader.com{encodeURIComponent(pinUrl)}`;
-    // बैकअप API Endpoint 2
-    const api2 = `onrender.com{encodeURIComponent(pinUrl)}`;
+    // Pinterest Scraper API Gateway जो कभी बंद नहीं होगा
+    const directApi = `allorigins.win{encodeURIComponent(pinUrl)}`;
 
     try {
-        // पहला सर्वर ट्राई करें
-        let response = await fetch(api1);
-        let data = await response.json();
+        let response = await fetch(directApi);
+        let rawData = await response.json();
+        let htmlContent = rawData.contents;
+
+        // HTML से असली MP4 वीडियो URL खोजने का लॉजिक
+        let videoMatch = htmlContent.match(/"video_list":.*?:"(https:\/\/v1\.pinimg\.com\/videos\/.*?\.mp4)"/);
         
-        if (data && (data.video_url || data.url)) {
-            let finalUrl = data.video_url || data.url;
-            showVideo(finalUrl);
-            return;
+        if (!videoMatch) {
+            // दूसरा अल्टरनेटिव सर्च पैटर्न ट्राई करें
+            videoMatch = htmlContent.match(/href="(https:\/\/v1\.pinimg\.com\/videos\/.*?\.mp4)"/);
         }
-        
-        // अगर पहला फेल हुआ, तो बैकअप सर्वर ट्राई करें
-        throw new Error("API 1 Failed, Trying Backup...");
-        
+
+        if (videoMatch && videoMatch[1]) {
+            // बैकस्लैश हटाकर क्लीन URL बनाना
+            let cleanUrl = videoMatch[1].replace(/\\/g, "");
+            player.src = cleanUrl;
+            saveLink.href = cleanUrl;
+            resultBox.style.display = "block";
+        } else {
+            alert("यह लिंक वीडियो का नहीं है या इमेज पोस्ट है। कृपया केवल वीडियो का लिंक डालें!");
+        }
     } catch (err) {
-        console.log(err.message);
-        try {
-            let response = await fetch(api2);
-            let data = await response.json();
-            if (data && data.url) {
-                showVideo(data.url);
-                return;
-            }
-            alert("यह वीडियो प्राइवेट है या इसका लिंक सही नहीं है। कृपया दूसरा लिंक ट्राई करें!");
-        } catch (backupErr) {
-            alert("दोनों सर्वर डाउन हैं! कृपया 2 मिनट बाद दोबारा कोशिश करें।");
-        }
+        alert("नेटवर्क स्लो है, कृपया एक बार फिर से बटन दबाएं!");
     } finally {
         btn.innerText = "Download HD Video";
         btn.disabled = false;
-    }
-
-    function showVideo(url) {
-        player.src = url;
-        saveLink.href = url;
-        resultBox.style.display = "block";
     }
 }
 </script>
